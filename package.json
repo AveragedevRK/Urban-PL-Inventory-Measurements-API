@@ -1,21 +1,20 @@
 {
-  "name": "express-product-api",
+  "name": "urban-pl-inventory-api",
   "version": "1.0.0",
-  "description": "A simple Express API to manage products",
+  "description": "API for managing product data with JSON file persistence",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js"  // for development, if you want auto-restart
   },
   "dependencies": {
-    "express": "^4.18.1"
+    "cors": "^2.8.5",  // CORS middleware for cross-origin requests
+    "express": "^4.17.1",  // Express framework for building the server
+    "fs": "0.0.1-security"  // File system module for reading/writing files
   },
   "devDependencies": {
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.7"  // Optional, useful for auto-reloading during development
   },
-  "engines": {
-    "node": "14.x"
-  },
-  "author": "Your Name",
+  "author": "",
   "license": "ISC"
 }
