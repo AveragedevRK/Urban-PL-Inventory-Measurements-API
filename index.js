@@ -1,4 +1,3 @@
-// index.js
 const express = require('express');
 const fs = require('fs');
 const cors = require('cors'); // Importing the CORS package
@@ -7,7 +6,11 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 // Middleware to enable CORS
-app.use(cors());
+app.use(cors({
+  origin: '*', // Allow all origins, or you can specify a particular origin here
+  methods: ['GET', 'POST', 'PUT'], // Allow these methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
+}));
 
 // Middleware to parse JSON bodies for POST requests
 app.use(express.json());
