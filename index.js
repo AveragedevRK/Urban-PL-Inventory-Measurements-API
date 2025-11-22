@@ -1,96 +1,77 @@
+// index.js
 const express = require('express');
 const fs = require('fs');
-const path = require('path');
+const cors = require('cors'); // Importing the CORS package
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
+// Middleware to enable CORS
+app.use(cors());
+
+// Middleware to parse JSON bodies for POST requests
 app.use(express.json());
 
-// Path to your data.json file
-const dataFilePath = path.join(__dirname, 'data.json');
-
-// Middleware to read data.json
-const readDataFile = () => {
-  try {
-    const data = fs.readFileSync(dataFilePath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error("Error reading data.json", error);
-    return [];
-  }
-};
-
-// Middleware to write to data.json
-const writeDataFile = (data) => {
-  try {
-    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error("Error writing data.json", error);
-  }
-};
-
-// Endpoint to get all products data
+// Endpoint to get all products (GET request)
 app.get('/api/products', (req, res) => {
-  const products = readDataFile();
-  res.json(products);
-});
-
-// Endpoint to get a specific product by ID
-app.get('/api/products/:id', (req, res) => {
-  const { id } = req.params;
-  const products = readDataFile();
-  const product = products.find(p => p.id === id);
-
-  if (product) {
-    res.json(product);
-  } else {
-    res.status(404).json({ message: 'Product not found' });
+  try {
+    const products = JSON.parse(fs.readFileSync('./data.json', 'utf-8'));
+    res.json(products);
+  } catch (err) {
+    console.error('Failed to read products data:', err);
+    res.status(500).json({ error: 'Failed to load products' });
   }
 });
 
-// Endpoint to update a product by ID (e.g., dimensions, weight)
-app.put('/api/products/:id', (req, res) => {
-  const { id } = req.params;
-  const { dimensions, weight } = req.body;
-
-  let products = readDataFile();
-  let product = products.find(p => p.id === id);
-
-  if (product) {
-    product.dimensions = dimensions || product.dimensions;
-    product.weight = weight || product.weight;
-
-    // Save the updated products list to data.json
-    writeDataFile(products);
-
-    res.json({ message: 'Product updated successfully', product });
-  } else {
-    res.status(404).json({ message: 'Product not found' });
-  }
-});
-
-// Endpoint to create a new product
+// Endpoint to update a product (POST request)
 app.post('/api/products', (req, res) => {
-  const { title, sku, dimensions, weight, image } = req.body;
-  const newProduct = {
-    id: new Date().getTime().toString(), // Simple unique ID (timestamp-based)
-    title,
-    sku,
-    dimensions,
-    weight,
-    image,
-  };
+  try {
+    const newProduct = req.body;
+    
+    // Read the existing products
+    const products = JSON.parse(fs.readFileSync('./data.json', 'utf-8'));
+    
+    // Append the new product to the products array
+    products.push(newProduct);
+    
+    // Write the updated products array back to data.json
+    fs.writeFileSync('./data.json', JSON.stringify(products, null, 2));
 
-  const products = readDataFile();
-  products.push(newProduct);
-
-  writeDataFile(products);
-
-  res.status(201).json({ message: 'Product created successfully', product: newProduct });
+    res.status(201).json({ message: 'Product added successfully!' });
+  } catch (err) {
+    console.error('Failed to add product:', err);
+    res.status(500).json({ error: 'Failed to add product' });
+  }
 });
 
-// Start the Express server
+// Endpoint to update product dimensions or weight (PUT request)
+app.put('/api/products/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedProduct = req.body;
+
+    // Read the existing products
+    const products = JSON.parse(fs.readFileSync('./data.json', 'utf-8'));
+
+    // Find the product by ID and update it
+    const productIndex = products.findIndex((product) => product.id === id);
+    if (productIndex === -1) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    products[productIndex] = { ...products[productIndex], ...updatedProduct };
+
+    // Write the updated products array back to data.json
+    fs.writeFileSync('./data.json', JSON.stringify(products, null, 2));
+
+    res.status(200).json({ message: 'Product updated successfully!' });
+  } catch (err) {
+    console.error('Failed to update product:', err);
+    res.status(500).json({ error: 'Failed to update product' });
+  }
+});
+
+// Start the server
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server running on http://localhost:${port}`);
 });
