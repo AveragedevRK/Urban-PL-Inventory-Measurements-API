@@ -5,15 +5,15 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"  // for development, if you want auto-restart
+    "dev": "nodemon index.js"
   },
   "dependencies": {
-    "cors": "^2.8.5",  // CORS middleware for cross-origin requests
-    "express": "^4.17.1",  // Express framework for building the server
-    "fs": "0.0.1-security"  // File system module for reading/writing files
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "fs": "0.0.1-security"
   },
   "devDependencies": {
-    "nodemon": "^2.0.7"  // Optional, useful for auto-reloading during development
+    "nodemon": "^2.0.7"
   },
   "author": "",
   "license": "ISC"
